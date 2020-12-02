@@ -21,7 +21,9 @@
     "url": "https://github.com/TrevorSundberg/h264-mp4-encoder/issues"
   },
   "homepage": "https://github.com/TrevorSundberg/h264-mp4-encoder#readme",
-  "dependencies": {},
+  "dependencies": {
+    "nan": "^2.14.2"
+  },
   "devDependencies": {
     "ts-loader": "^7.0.4",
     "typescript": "^3.9.2",

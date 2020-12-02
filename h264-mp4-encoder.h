@@ -75,6 +75,7 @@ public:
   void addFrameYuv(const std::string &yuv_buffer);
 
   void addFrameRgba(const std::string &rgba_buffer);
+  void addFrameRgb(const std::string &rgb_buffer);
 
   void finalize();
 

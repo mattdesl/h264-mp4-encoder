@@ -227,6 +227,7 @@ export interface H264MP4Encoder {
      * Alpha is ignored but is kept for convenience of working with the HTML5 canvas.getImageData().
      */
     addFrameRgba(buffer: ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array | string): void;
+    addFrameRgb(buffer: ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array | string): void;
 
     /** Finish outputting the video to the `outputFilename`. */
     finalize(): void;

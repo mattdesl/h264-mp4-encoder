@@ -292,6 +292,61 @@ void H264MP4Encoder::addFrameRgba(const std::string &rgba_buffer)
   addFrameYuv(private_->rgba_to_yuv_buffer);
 }
 
+void H264MP4Encoder::addFrameRgb(const std::string &rgb_buffer)
+{
+  HME_CHECK(private_, INITIALIZE_MESSAGE);
+  HME_CHECK(rgb_buffer.size() == width * height * 3 /*RGB*/,
+            "Incorrect buffer size for RGB (width * height * 3)");
+  uint8_t *rgb = (uint8_t *)rgb_buffer.data();
+
+  size_t yuv_size = width * height * 3 / 2;
+
+  private_->rgba_to_yuv_buffer.resize(yuv_size);
+  uint8_t *buffer = (uint8_t *)private_->rgba_to_yuv_buffer.data();
+
+  size_t image_size = width * height;
+  size_t upos = image_size;
+  size_t vpos = upos + upos / 3;
+  size_t i = 0;
+
+  for (size_t line = 0; line < height; ++line)
+  {
+    if (!(line % 2))
+    {
+      for (size_t x = 0; x < width; x += 2)
+      {
+        uint8_t r = rgb[3 * i];
+        uint8_t g = rgb[3 * i + 1];
+        uint8_t b = rgb[3 * i + 2];
+
+        buffer[i++] = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+
+        buffer[upos++] = ((-38 * r + -74 * g + 112 * b) >> 8) + 128;
+        buffer[vpos++] = ((112 * r + -94 * g + -18 * b) >> 8) + 128;
+
+        r = rgb[3 * i];
+        g = rgb[3 * i + 1];
+        b = rgb[3 * i + 2];
+
+        buffer[i++] = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+      }
+    }
+    else
+    {
+      for (size_t x = 0; x < width; x += 1)
+      {
+        uint8_t r = rgb[3 * i];
+        uint8_t g = rgb[3 * i + 1];
+        uint8_t b = rgb[3 * i + 2];
+
+        buffer[i++] = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+      }
+    }
+  }
+
+  addFrameYuv(private_->rgba_to_yuv_buffer);
+}
+
 void H264MP4Encoder::finalize()
 {
   HME_CHECK(private_, INITIALIZE_MESSAGE);
