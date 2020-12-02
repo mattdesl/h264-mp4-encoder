@@ -115,21 +115,21 @@ target_include_directories(h264-mp4-encoder-library PRIVATE
     "minih264"
 )
 
-add_executable(h264-mp4-encoder-test
-    main.cpp
-)
+#add_executable(h264-mp4-encoder-test
+#    main.cpp
+#)
 
-target_link_libraries(h264-mp4-encoder-test h264-mp4-encoder-library)
+#target_link_libraries(h264-mp4-encoder-test h264-mp4-encoder-library)
 
 if(EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "\
         ${CMAKE_CXX_FLAGS}\
-        -s DISABLE_EXCEPTION_CATCHING=0\
         -s ALLOW_MEMORY_GROWTH=1\
+        -s DISABLE_EXCEPTION_CATCHING=0\
         -s WASM=1\
         -s EXTRA_EXPORTED_RUNTIME_METHODS=['FS']\
-        -s SINGLE_FILE=1\
         -s MODULARIZE=1\
+        -s EXPORT_ES6=1\
         -s EXPORT_NAME=H264MP4Module\
         -Wno-invalid-source-encoding\
         -Wno-tautological-pointer-compare\
@@ -139,9 +139,14 @@ if(EMSCRIPTEN)
         --bind\
     ")
 
+        #-s DISABLE_EXCEPTION_CATCHING=0\
+
     add_executable(h264-mp4-encoder
         emscripten.cpp
     )
+    #target_compile_options(h264-mp4-encoder
+    #  PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+    #)
     target_link_libraries(h264-mp4-encoder h264-mp4-encoder-library)
     set_target_properties(
         h264-mp4-encoder

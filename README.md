@@ -1,4 +1,19 @@
 # Introducing h264-mp4-encoder
+
+## hacks by @mattdesl
+
+I made some modifications:
+
+- Added a way to encode just rgb frames
+- Added a way to encode YUV frames by pointer, this is much faster
+- Tweaked some of the build options in test.sh and CMakeLists.txt (couldn't get Docker working...)
+  - Build time is slow because of "-O2" optimization in Emscripten, use "-01" for faster build times
+  - Using WASM now, so all the TypeScript/bundled JS stuff is ignored. I'm copying the `embuild/*.js` and `embuild/*.wasm` files to my JS+HTML project.
+
+What follows is the rest of the original repo, many thanks to Trevor!
+
+--
+
 Encode directly to H264 and ouput as an MP4 in node or on the web with WebAssembly! Works with the HTML5 Canvas :)
 
 [See The Simple Demo](https://trevorsundberg.github.io/h264-mp4-encoder/) or checkout the animation site it was designed for: [Gifygram](https://gifygram.com)!

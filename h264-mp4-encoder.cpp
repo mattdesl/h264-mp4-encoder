@@ -36,6 +36,7 @@ public:
   H264MP4Encoder *encoder = nullptr;
   MP4FileHandle mp4 = nullptr;
   MP4TrackId video_track = 0;
+  uint8_t* frame_ = nullptr;
 
   int frame = 0;
   H264E_persist_t *enc = nullptr;
@@ -176,6 +177,9 @@ void H264MP4Encoder::initialize()
   HME_CHECK_INTERNAL(sizeof_result == H264E_STATUS_SUCCESS);
   if (debug)
   {
+    #ifdef __SSE2__
+      printf("has sse2\n");
+    #endif
     printf("sizeof_persist=%d, sizeof_scratch=%d\n", sizeof_persist, sizeof_scratch);
   }
 
@@ -183,6 +187,76 @@ void H264MP4Encoder::initialize()
   private_->scratch = (H264E_scratch_t *)ALIGNED_ALLOC(64, sizeof_scratch);
 
   HME_CHECK_INTERNAL(H264E_init(private_->enc, &create_param) == H264E_STATUS_SUCCESS);
+}
+
+uint8_t* H264MP4Encoder::create_yuv_buffer(uint32_t width, uint32_t height)
+{
+  return (uint8_t *)malloc(width * height * 3 / 2 * sizeof(uint8_t));
+}
+uintptr_t H264MP4Encoder::em_create_yuv_buffer(uint32_t width, uint32_t height)
+{
+  uint8_t* p = create_yuv_buffer(width, height);
+  uintptr_t k = (uintptr_t)p;
+  return k;
+}
+
+void H264MP4Encoder::em_free_yuv_buffer(uintptr_t i)
+{
+  free_yuv_buffer(reinterpret_cast<uint8_t*>(i));
+}
+void H264MP4Encoder::free_yuv_buffer(uint8_t* p) {
+  free(p);
+}
+
+void H264MP4Encoder::em_fast_encode_yuv(uintptr_t i)
+{
+  fast_encode_yuv(reinterpret_cast<uint8_t*>(i));
+}
+void H264MP4Encoder::fast_encode_yuv(uint8_t* yuv)
+{
+  H264E_io_yuv_t yuv_planes;
+  yuv_planes.yuv[0] = yuv;
+  yuv_planes.stride[0] = width;
+  yuv_planes.yuv[1] = yuv + width * height;
+  yuv_planes.stride[1] = width / 2;
+  yuv_planes.yuv[2] = yuv + width * height * 5 / 4;
+  yuv_planes.stride[2] = width / 2;
+
+  H264E_run_param_t run_param;
+  memset(&run_param, 0, sizeof(run_param));
+  run_param.frame_type = 0;
+  run_param.encode_speed = speed;
+  run_param.desired_nalu_bytes = desiredNaluBytes;
+
+  if (kbps)
+  {
+    run_param.desired_frame_bytes = kbps * 1000 / 8 / frameRate;
+    run_param.qp_min = 10;
+    run_param.qp_max = 50;
+  }
+  else
+  {
+    run_param.qp_min = run_param.qp_max = quantizationParameter;
+  }
+
+  run_param.nalu_callback_token = this->private_;
+  run_param.nalu_callback = &H264MP4EncoderPrivate::nalu_callback;
+
+  int sizeof_coded_data = 0;
+  uint8_t *coded_data = nullptr;
+  HME_CHECK_INTERNAL(H264E_encode(
+                         private_->enc,
+                         private_->scratch,
+                         &run_param,
+                         &yuv_planes,
+                         &coded_data,
+                         &sizeof_coded_data) == H264E_STATUS_SUCCESS);
+
+  if (debug)
+  {
+    printf("frame=%d, bytes=%d\n", private_->frame, sizeof_coded_data);
+  }
+  ++private_->frame;
 }
 
 void H264MP4Encoder::addFrameYuv(const std::string &yuv_buffer)
@@ -243,9 +317,7 @@ void H264MP4Encoder::addFrameRgba(const std::string &rgba_buffer)
   HME_CHECK(rgba_buffer.size() == width * height * 4 /*RGBA*/,
             "Incorrect buffer size for RGBA (width * height * 4)");
   uint8_t *rgba = (uint8_t *)rgba_buffer.data();
-
   size_t yuv_size = width * height * 3 / 2;
-
   private_->rgba_to_yuv_buffer.resize(yuv_size);
   uint8_t *buffer = (uint8_t *)private_->rgba_to_yuv_buffer.data();
 
@@ -298,15 +370,13 @@ void H264MP4Encoder::addFrameRgb(const std::string &rgb_buffer)
   HME_CHECK(rgb_buffer.size() == width * height * 3 /*RGB*/,
             "Incorrect buffer size for RGB (width * height * 3)");
   uint8_t *rgb = (uint8_t *)rgb_buffer.data();
-
   size_t yuv_size = width * height * 3 / 2;
-
   private_->rgba_to_yuv_buffer.resize(yuv_size);
   uint8_t *buffer = (uint8_t *)private_->rgba_to_yuv_buffer.data();
 
   size_t image_size = width * height;
   size_t upos = image_size;
-  size_t vpos = upos + upos / 3;
+  size_t vpos = upos + upos / 4;
   size_t i = 0;
 
   for (size_t line = 0; line < height; ++line)

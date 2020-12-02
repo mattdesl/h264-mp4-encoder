@@ -77,6 +77,15 @@ public:
   void addFrameRgba(const std::string &rgba_buffer);
   void addFrameRgb(const std::string &rgb_buffer);
 
+  void fast_encode_yuv(uint8_t* yuv);
+  void em_fast_encode_yuv(uintptr_t i);
+
+  uint8_t* create_yuv_buffer(uint32_t width, uint32_t height);
+  uintptr_t em_create_yuv_buffer(uint32_t width, uint32_t height);
+
+  void free_yuv_buffer(uint8_t* p);
+  void em_free_yuv_buffer(uintptr_t i);
+
   void finalize();
 
   ~H264MP4Encoder();
