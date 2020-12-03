@@ -1,6 +1,6 @@
 [submodule "minih264"]
 	path = minih264
-	url = https://github.com/TrevorSundberg/minih264.git
+	url = https://github.com/mattdesl/minih264.git
 [submodule "libmp4v2"]
 	path = libmp4v2
 	url = https://github.com/TrevorSundberg/libmp4v2.git

@@ -127,13 +127,14 @@ if(EMSCRIPTEN)
         -s ALLOW_MEMORY_GROWTH=1\
         -s DISABLE_EXCEPTION_CATCHING=0\
         -s WASM=1\
+        -msimd128\
         -s EXTRA_EXPORTED_RUNTIME_METHODS=['FS']\
         -s MODULARIZE=1\
         -s EXPORT_ES6=1\
         -s EXPORT_NAME=H264MP4Module\
         -Wno-invalid-source-encoding\
         -Wno-tautological-pointer-compare\
-        -O2\
+        -O3\
         --closure 1\
         -g0\
         --bind\
