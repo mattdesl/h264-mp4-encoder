@@ -134,7 +134,7 @@ if(EMSCRIPTEN)
         -s EXPORT_NAME=H264MP4Module\
         -Wno-invalid-source-encoding\
         -Wno-tautological-pointer-compare\
-        -O3\
+        -O2\
         --closure 1\
         -g0\
         --bind\
