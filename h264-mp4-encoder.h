@@ -2,6 +2,7 @@
 #include <string>
 #include <stdint.h>
 #include <stdio.h>
+
 #pragma once
 
 class H264MP4EncoderPrivate;
@@ -11,6 +12,9 @@ typedef void (*H264MP4Encoder_data_callback)(
     const uint8_t *data,
     const uint32_t size);
 
+#define PRINTF_ENABLED 1
+
+#if PRINTF_ENABLED
 #define HME_CHECK(expr, message)                                       \
   do                                                                   \
   {                                                                    \
@@ -21,6 +25,16 @@ typedef void (*H264MP4Encoder_data_callback)(
       abort();                                                         \
     }                                                                  \
   } while (false)
+#else
+#define HME_CHECK(expr, message)                                       \
+  do                                                                   \
+  {                                                                    \
+    if (!(expr))                                                       \
+    {                                                                  \
+      abort();                                                         \
+    }                                                                  \
+  } while (false)
+#endif
 
 #define HME_CHECK_INTERNAL(expr) HME_CHECK(expr, "Internal error")
 
@@ -67,6 +81,9 @@ public:
   // Each NAL unit will be approximately capped at this size (0 means unlimited).
   HME_PROPERTY(uint32_t, desiredNaluBytes, 0);
 
+  HME_PROPERTY(bool, sequential, false);
+  HME_PROPERTY(bool, fragmentation, false);
+
   // Prints extra debug information.
   HME_PROPERTY(bool, debug, false);
 
@@ -74,17 +91,18 @@ public:
 
   void addFrameYuv(const std::string &yuv_buffer);
 
+  void addFrameRgbPixels(const std::string &rgba_buffer, int stride);
   void addFrameRgba(const std::string &rgba_buffer);
   void addFrameRgb(const std::string &rgb_buffer);
 
   void fast_encode_yuv(uint8_t* yuv);
   void em_fast_encode_yuv(uintptr_t i);
 
-  uint8_t* create_yuv_buffer(uint32_t width, uint32_t height);
-  uintptr_t em_create_yuv_buffer(uint32_t width, uint32_t height);
+  uint8_t* create_buffer(uint32_t length);
+  uintptr_t em_create_buffer(uint32_t length);
 
-  void free_yuv_buffer(uint8_t* p);
-  void em_free_yuv_buffer(uintptr_t i);
+  void free_buffer(uint8_t* p);
+  void em_free_buffer(uintptr_t i);
 
   void finalize();
 

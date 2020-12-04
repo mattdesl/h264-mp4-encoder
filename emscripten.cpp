@@ -4,17 +4,6 @@
 
 using namespace emscripten;
 
-
-// uint8_t* create_yuv_buffer(uint32_t width, uint32_t height)
-// {
-//   return (uint8_t*)malloc(width * height * 3 / 2 * sizeof(uint8_t));
-// }
-
-// extern "C" int EMSCRIPTEN_KEEPALIVE myFunc(void *bufAddr, unsigned int size) {
-//   // origFunc(static_cast<double *>(bufAddr), size);
-//   return 0;
-// }
-
 EMSCRIPTEN_BINDINGS(H264MP4EncoderBinding)
 {
 
@@ -31,15 +20,17 @@ EMSCRIPTEN_BINDINGS(H264MP4EncoderBinding)
       .property("groupOfPictures", &H264MP4Encoder::get_groupOfPictures, &H264MP4Encoder::set_groupOfPictures)
       .property("temporalDenoise", &H264MP4Encoder::get_temporalDenoise, &H264MP4Encoder::set_temporalDenoise)
       .property("desiredNaluBytes", &H264MP4Encoder::get_desiredNaluBytes, &H264MP4Encoder::set_desiredNaluBytes)
+      .property("sequential", &H264MP4Encoder::get_sequential, &H264MP4Encoder::set_sequential)
+      .property("fragmentation", &H264MP4Encoder::get_fragmentation, &H264MP4Encoder::set_fragmentation)
       .property("debug", &H264MP4Encoder::get_debug, &H264MP4Encoder::set_debug)
 
       .function("initialize", &H264MP4Encoder::initialize)
       .function("addFrameYuv", &H264MP4Encoder::addFrameYuv)
-      .function("addFrameRgb", &H264MP4Encoder::addFrameRgb)
       .function("addFrameRgba", &H264MP4Encoder::addFrameRgba)
+      .function("addFrameRgb", &H264MP4Encoder::addFrameRgb)
       .function("fast_encode_yuv", &H264MP4Encoder::em_fast_encode_yuv, allow_raw_pointers())
-      .function("create_yuv_buffer", &H264MP4Encoder::em_create_yuv_buffer, allow_raw_pointers())
-      .function("free_yuv_buffer", &H264MP4Encoder::em_free_yuv_buffer, allow_raw_pointers())
+      .function("create_buffer", &H264MP4Encoder::em_create_buffer, allow_raw_pointers())
+      .function("free_buffer", &H264MP4Encoder::em_free_buffer, allow_raw_pointers())
       .function("finalize", &H264MP4Encoder::finalize);
 }
 
