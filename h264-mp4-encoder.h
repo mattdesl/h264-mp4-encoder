@@ -1,7 +1,7 @@
 // Copyright (C) Trevor Sundberg, MIT License (see LICENSE.md)
 #include <string>
-#include <stdint.h>
-#include <stdio.h>
+// #include <stdint.h>
+// #include <stdio.h>
 
 #pragma once
 

@@ -32,7 +32,8 @@ if(EMSCRIPTEN)
         -msse\
         -msse2\
         -msse3\
-        -mfpu=neon\
+        -s ENVIRONMENT=web\
+        -s TEXTDECODER=0\
         -s EXTRA_EXPORTED_RUNTIME_METHODS=['FS']\
         -s MODULARIZE=1\
         -s EXPORT_ES6=1\

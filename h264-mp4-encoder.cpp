@@ -5,8 +5,8 @@
 // https://github.com/lieff/minih264/blob/master/minih264e_test.c
 // https://stackoverflow.com/questions/9465815/rgb-to-yuv420-algorithm-efficiency
 
-#include <string.h>
-#include <stdlib.h>
+// #include <string.h>
+// #include <stdlib.h>
 
 #undef H264E_MAX_THREADS
 #define H264E_MAX_THREADS 0
